@@ -1,4 +1,4 @@
-this is downloader for coomer and kemono
+downloader for coomer.su and kemono.su
 
 ## prerequisite
 nodejs
