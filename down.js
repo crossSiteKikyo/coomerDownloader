@@ -26,7 +26,7 @@ function consoleGrey(val) {
     console.log(`\x1b[100m${val}\x1b[0m`);
 }
 function help() {
-    console.log(`usage: node down -url URL [-limit LIMIT] [-start STARTINDEX]`);
+    console.log(`usage: node down -url "URL" [-limit LIMIT] [-start STARTINDEX]`);
     process.exit();
 }
 
@@ -136,6 +136,10 @@ function downCoomerData(url, postId, fileName) {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0',
             }
         }).then(function (response) {
+            response.data.on('error', (error)=>{
+                consoleGrey(`${fileName} download on error`);
+                resolve();
+            })
             if (!fs.existsSync(`./data/${argObject.name}-${argObject.platform}/${postId}`)) {
                 fs.mkdirSync(`./data/${argObject.name}-${argObject.platform}/${postId}`, { recursive: true });
             }
@@ -159,6 +163,7 @@ function downCoomerData(url, postId, fileName) {
 
 async function main() {
     let driver = await new Builder().forBrowser(Browser.CHROME).build();
+    await driver.manage().setTimeouts({implicit: 5000});
     try {
         //await driver.manage().window().setSize(0, 0);
         let postLinks = [];
@@ -201,6 +206,7 @@ async function main() {
                 continue;
             console.log(`${parseInt(i) + 1}/${postLinks.length} postUrl: ${postLinks[i]}`);
             await driver.get(postLinks[i]);
+            await driver.wait(until.elementsLocated(By.css('.post__info')), 10000);
             const postId = postLinks[i].split('/').at(-1);
             const post__info = await driver.findElement(By.className('post__info'));
             const post__body = await driver.findElement(By.className('post__body'));
@@ -233,7 +239,6 @@ async function main() {
                     // 이미 파일이 있다면 다운하지 않음.
                     const fileName = `img (${j})${extension}`;
                     if (fs.existsSync(`./data/${argObject.name}-${argObject.platform}/${postId}/${fileName}`)) {
-                        console.log(`${fileName}이 이미 있습니다.`);
                         continue;
                     }
                     filePromiseList.push(downCoomerData(src, postId, fileName));
@@ -249,7 +254,6 @@ async function main() {
                     const url = await post__attachment_link[j].getAttribute('href');
                     const fileName = decodeURI(await post__attachment_link[j].getAttribute('download'));
                     if (fs.existsSync(`./data/${argObject.name}-${argObject.platform}/${postId}/${fileName}`)) {
-                        console.log(`${fileName}이 이미 있습니다.`);
                         continue;
                     }
                     downloadPromiseList.push(downCoomerData(url, postId, fileName));

@@ -12,7 +12,7 @@ npm install
 
 ## Command
 ```bash
-node down -url URL [-limit LIMIT] [-start STARTINDEX]
+node down -url "URL" [-limit LIMIT] [-start STARTINDEX]
 ```
 
 - -url is mandatory. you have to specify user url. not post url.
