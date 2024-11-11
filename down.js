@@ -137,7 +137,7 @@ function downCoomerData(url, postId, fileName) {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36 Edg/127.0.0.0',
             }
         }).then(function (response) {
-            response.data.on('error', (error)=>{
+            response.data.on('error', (error) => {
                 consoleGrey(`${fileName} download on error. retry this.`);
                 writer.close();
                 return downCoomerData(url, postId, fileName);
@@ -166,7 +166,7 @@ function downCoomerData(url, postId, fileName) {
 
 async function main() {
     let driver = await new Builder().forBrowser(Browser.CHROME).build();
-    await driver.manage().setTimeouts({implicit: 5000});
+    await driver.manage().setTimeouts({ implicit: 5000 });
     try {
         //await driver.manage().window().setSize(0, 0);
         let postLinks = [];
@@ -205,7 +205,7 @@ async function main() {
         }
         // visit post links
         for (let i in postLinks) {
-            if (i <= argObject.startIndex)
+            if (i < (argObject.startIndex-1))
                 continue;
             console.log(`${parseInt(i) + 1}/${postLinks.length} postUrl: ${postLinks[i]}`);
             await driver.get(postLinks[i]);
