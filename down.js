@@ -5,7 +5,7 @@ const fs = require('node:fs');
 let argObject = {
     limit: 50,
     url: '',
-    startIndex: 0,
+    startIndex: 1,
     site: 'Coomer',
     platform: '',
     user: '',   // url user
@@ -27,6 +27,7 @@ function consoleGrey(val) {
 }
 function help() {
     console.log(`usage: node down -url "URL" [-limit LIMIT] [-start STARTINDEX]`);
+    console.log(`-url is mandatory. -limit and -start is option. default value is 50 and 1`);
     process.exit();
 }
 
@@ -137,7 +138,9 @@ function downCoomerData(url, postId, fileName) {
             }
         }).then(function (response) {
             response.data.on('error', (error)=>{
-                consoleGrey(`${fileName} download on error`);
+                consoleGrey(`${fileName} download on error. retry this.`);
+                writer.close();
+                return downCoomerData(url, postId, fileName);
                 resolve();
             })
             if (!fs.existsSync(`./data/${argObject.name}-${argObject.platform}/${postId}`)) {
@@ -202,7 +205,7 @@ async function main() {
         }
         // visit post links
         for (let i in postLinks) {
-            if (i < argObject.startIndex)
+            if (i <= argObject.startIndex)
                 continue;
             console.log(`${parseInt(i) + 1}/${postLinks.length} postUrl: ${postLinks[i]}`);
             await driver.get(postLinks[i]);
