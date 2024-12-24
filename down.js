@@ -180,9 +180,12 @@ async function main() {
             // get user name
             argObject.name = await (await driver.findElement(By.id('user-header__info-top'))).getText();
             // 포스트들을 가져옴. limit개수만큼 가져오거나 더이상 가져올 수 없을때까지 가져온다.
-            const card_list__items = await driver.findElement(By.className('card-list__items'));
-            const image_links = await card_list__items.findElements(By.className('image-link'));
-            for (let image_link of image_links) {
+            // .card-list__items 에서 article태그의 a태그에 링크들이 들어있다.
+            const aLinks = await driver.findElements(By.css('.card-list__items > article > a'));
+            if (aLinks.length == 0) {
+                throw "링크들을 정상적으로 탐지하지 못했습니다";
+            }
+            for (let image_link of aLinks) {
                 let link = await image_link.getAttribute('href');
                 postLinks.push(link);
             }
